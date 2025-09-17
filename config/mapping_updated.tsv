@@ -1,0 +1,80 @@
+# Updated mapping rules to address feedback issues:
+# - normalize stress markers, split adjacent primary stresses into separate words
+# - standardize r-colored vowels to ɚ (unstressed) and ɝ (stressed) where detectable
+# - convert common X-SAMPA/espeak tokens to IPA
+# - normalize ASCII artifacts like a#, o@, digits used as tokens, and NBSP
+# Note: rules are applied in order. Save this file as mapping_updated.tsv (UTF-8, tab-separated).
+
+# --- 1. Normalize invisible/spacing issues ---
+\u00A0	 
+[ \t]{2,}	 
+, +	, 
+,([^\s])	, \1
+-\t 
+# --- 2. Stress normalization & splitting compound primary stresses ---
+ˈ{2,}	ˈ
+ˌ{2,}	ˌ
+(ˈ[^ˈˌ\s]+)(ˈ)(?=[^\s])	\1 \2
+([^\sˈˌ]+)(ˈ)([^\sˈˌ]+)(ˈ)([^\sˈˌ]+)	\1\2\3 \4\5
+# この行は不完全な正規表現のためコメントアウト
+# --- 3. r-vowel normalization (American r-coloring) ---
+ɜr	ɝ
+ɜɹ	ɝ
+ər(\b|\s)	ɚ\1
+əɹ(\b|\s)	ɚ\1
+eɹ(\b|\s)	eɹ\1
+ar(\b|\s)	ɑɹ\1
+([aeiouəɪɛɔɑɜɝɪu])+r\b	\1ɹ
+# --- 4. Schwa / ə normalization ---
+@\tə
+a#\tə
+2\tə
+# --- 5. X-SAMPA / espeak common tokens to IPA ---
+S	ʃ
+Z	ʒ
+T	θ
+D	ð
+N	ŋ
+O	ɔ
+3	ɜ
+\&	ɶ
+\? 	ʔ
+`	ˈ
+"	ˌ
+I	ɪ
+U	ʊ
+E	ɛ
+A	ɑ
+V	ʌ
+# --- 6. espeak-specific artifacts ---
+o@\tɔ
+0\tʌ
+I2\tɪ
+2\tə
+\b0\b	ʌ
+# --- 7. ARPAbet -> IPA (if any ARPAbet tokens appear) ---
+AA	ɑ
+AE	æ
+AH	ʌ
+AO	ɔ
+AW	aʊ
+AY	aɪ
+EH	ɛ
+ER	ɝ
+EY	eɪ
+IH	ɪ
+IY	i
+OW	oʊ
+OY	ɔɪ
+UH	ʊ
+UW	u
+# --- 8. cleanup: repeated length marks, multiple dots ---
+ː{2,}	ː
+\.{2,}	.
+# --- 9. punctuation & bracket cleanup ---
+[\[\]\(\)]+\s*	
+\s+;\s+	; 
+# --- 10. final safety rules ---
+^\s*$	__EMPTY__
+# .	\0
+# このルールは無効化（すべての文字をnullに置換してしまうため）
